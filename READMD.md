@@ -87,6 +87,11 @@ python cmd_chat.py --claude           # Claude 多轮对话
 python cmd_chat.py --claude --show-steps   # 默认显示每轮 steps
 # 输入 /quit 或 /exit 退出，/steps 切换是否显示步骤
 
+# Agent 内 Translink 融合（本地 data/SEQ_GTFS）
+# Claude/Ollama Agent 多两个工具：translink_search_stops(query)、translink_get_departures(stop_id, after_time)
+# 需在项目下保留 data/SEQ_GTFS（GTFS 解压后的 stops.txt, routes.txt, trips.txt, stop_times.txt 等）
+# 问 "bus from Queen Street to Central" 等 SEQ 公交时，Agent 会先查站点再查发车时刻
+
 ```mermaid
 sequenceDiagram
     autonumber
