@@ -16,9 +16,7 @@ AGENT_MODEL = os.getenv("AGENT_LLM_MODEL", "llama3.1")
 MAX_ITERATIONS = int(os.getenv("AGENT_MAX_ITERATIONS", "8"))
 
 # Claude agent (optional: requires langchain-anthropic)
-# ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
-# ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-3-5-sonnet-20241022")
-ANTHROPIC_API_KEY: str = os.getenv("ANTHROPIC_API_KEY", "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")
+ANTHROPIC_API_KEY: str = os.getenv("ANTHROPIC_API_KEY", "")
 ANTHROPIC_MODEL: str = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-20250514")
 # All tools exposed to the agent (extend here for new tools)
 TOOLS = [search_travel_knowledge, translink_search_stops, translink_get_departures]

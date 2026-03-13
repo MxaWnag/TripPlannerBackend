@@ -30,7 +30,7 @@ OLLAMA_EMBED_MODEL: str = os.getenv("OLLAMA_EMBED_MODEL", "nomic-embed-text")
 L2_NORMALIZE: bool = os.getenv("EMBED_L2_NORMALIZE", "false").lower() == "true"
 
 # External LLM (no self-built RAG): same SearchIn/SearchOut contract
-ANTHROPIC_API_KEY: str = os.getenv("ANTHROPIC_API_KEY", "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")
+ANTHROPIC_API_KEY: str = os.getenv("ANTHROPIC_API_KEY", "")
 ANTHROPIC_MODEL: str = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-20250514")
 GOOGLE_API_KEY: str = os.getenv("GOOGLE_API_KEY", "") or os.getenv("GEMINI_API_KEY", "")
 GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")

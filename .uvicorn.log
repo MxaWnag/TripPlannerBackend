@@ -1,0 +1,21 @@
+INFO:     Started server process [152144]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
+Fetching 30 files:   0%|          | 0/30 [00:00<?, ?it/s]Fetching 30 files: 100%|██████████| 30/30 [00:00<00:00, 35899.89it/s]
+You're using a XLMRobertaTokenizerFast tokenizer. Please note that with a fast tokenizer, using the `__call__` method is faster than using a method to encode the text followed by a call to the `pad` method to get a padded encoding.
+INFO:     127.0.0.1:40754 - "POST /search HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40742 - "POST /agent/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55058 - "POST /search HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55074 - "POST /search HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55078 - "POST /search HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57994 - "POST /search HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56240 - "POST /agent/chat_claude HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54548 - "POST /search HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54550 - "POST /search HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54560 - "POST /search HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54566 - "POST /search HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42912 - "POST /search HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42914 - "POST /search HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42920 - "POST /search HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45616 - "POST /agent/chat_claude HTTP/1.1" 200 OK
