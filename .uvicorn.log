@@ -1,21 +1,17 @@
-INFO:     Started server process [152144]
+INFO:     Started server process [1974]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
-Fetching 30 files:   0%|          | 0/30 [00:00<?, ?it/s]Fetching 30 files: 100%|██████████| 30/30 [00:00<00:00, 35899.89it/s]
+INFO:     127.0.0.1:48214 - "POST /agent/chat/stream HTTP/1.1" 200 OK
+'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /BAAI/bge-m3/resolve/main/tokenizer_config.json (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x7f0697ed96f0>: Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: 78022798-594a-4362-ae71-652540104c19)')' thrown while requesting HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/tokenizer_config.json
+Retrying in 1s [Retry 1/5].
+'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /BAAI/bge-m3/resolve/main/tokenizer_config.json (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x7f0718d46290>: Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: 2dd0e07b-8f84-4070-95f4-c19ddd77e6ee)')' thrown while requesting HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/tokenizer_config.json
+Retrying in 2s [Retry 2/5].
+'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /BAAI/bge-m3/resolve/main/tokenizer_config.json (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x7f0697ed9540>: Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: dccd17de-d6c4-410c-8e64-f98c5d0b5b52)')' thrown while requesting HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/tokenizer_config.json
+Retrying in 4s [Retry 3/5].
+'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /BAAI/bge-m3/resolve/main/tokenizer_config.json (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x7f0697ed8fa0>: Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: 5b0d3f94-c81b-4128-9700-f0628813d35b)')' thrown while requesting HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/tokenizer_config.json
+Retrying in 8s [Retry 4/5].
+'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /BAAI/bge-m3/resolve/main/tokenizer_config.json (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x7f0697ed8850>: Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: c1147331-d32a-40ef-8c8d-77489392093a)')' thrown while requesting HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/tokenizer_config.json
+Retrying in 8s [Retry 5/5].
+'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /BAAI/bge-m3/resolve/main/tokenizer_config.json (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x7f0697ed8520>: Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: cd4e2307-61b9-4279-8136-a290af80bb70)')' thrown while requesting HEAD https://huggingface.co/BAAI/bge-m3/resolve/main/tokenizer_config.json
 You're using a XLMRobertaTokenizerFast tokenizer. Please note that with a fast tokenizer, using the `__call__` method is faster than using a method to encode the text followed by a call to the `pad` method to get a padded encoding.
-INFO:     127.0.0.1:40754 - "POST /search HTTP/1.1" 200 OK
-INFO:     127.0.0.1:40742 - "POST /agent/chat HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55058 - "POST /search HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55074 - "POST /search HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55078 - "POST /search HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57994 - "POST /search HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56240 - "POST /agent/chat_claude HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54548 - "POST /search HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54550 - "POST /search HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54560 - "POST /search HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54566 - "POST /search HTTP/1.1" 200 OK
-INFO:     127.0.0.1:42912 - "POST /search HTTP/1.1" 200 OK
-INFO:     127.0.0.1:42914 - "POST /search HTTP/1.1" 200 OK
-INFO:     127.0.0.1:42920 - "POST /search HTTP/1.1" 200 OK
-INFO:     127.0.0.1:45616 - "POST /agent/chat_claude HTTP/1.1" 200 OK

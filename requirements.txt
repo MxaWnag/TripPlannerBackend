@@ -63,6 +63,7 @@ nvidia-nvjitlink-cu12==12.8.93
 nvidia-nvtx-cu12==12.8.90
 packaging==25.0
 pandas==2.3.3
+matplotlib==3.10.1
 peft==0.17.1
 pillow==11.3.0
 portalocker==3.2.0
@@ -113,6 +114,10 @@ websockets==15.0.1
 xxhash==3.6.0
 yarl==1.21.0
 zlib-state==0.1.10
+
+# TripPlanner CLI (cmd_chat.py → trip_cli)
+rich>=13.0.0
+prompt-toolkit>=3.0.51
 
 # Agent extension (optional: comment out if not using /agent)
 langchain-core>=0.3.0

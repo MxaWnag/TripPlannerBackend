@@ -1,2 +1,7 @@
 .env
-*** End Patch
+logs/
+.uvicorn.pid
+.uvicorn.log
+.ollama.pid
+.ollama.log
+.ollama.model

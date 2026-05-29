@@ -7,12 +7,17 @@
 import os
 import math
 import time
+from pathlib import Path
 from typing import List, Optional
 
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
+
+load_dotenv(Path(__file__).resolve().parent / ".env")
 from pydantic import BaseModel, Field
 
 from qdrant_client import QdrantClient, models as qm
+from qdrant_client.http.exceptions import UnexpectedResponse
 import requests
 import textwrap
 from typing import Tuple
@@ -26,6 +31,7 @@ BGE_MODEL_NAME: str = os.getenv("BGE_MODEL", "BAAI/bge-m3")
 BGE_USE_FP16: bool = os.getenv("BGE_USE_FP16", "true").lower() == "true"
 BGE_DEVICE: Optional[str] = os.getenv("BGE_DEVICE")  # e.g. "cuda" or "cpu"; if None, library decides
 OLLAMA_URL: str = os.getenv("OLLAMA_URL", "http://localhost:11434")
+OLLAMA_LLM_MODEL: str = os.getenv("AGENT_LLM_MODEL", "llama3.1:8b-instruct-q4_K_M")
 OLLAMA_EMBED_MODEL: str = os.getenv("OLLAMA_EMBED_MODEL", "nomic-embed-text")
 L2_NORMALIZE: bool = os.getenv("EMBED_L2_NORMALIZE", "false").lower() == "true"
 
@@ -172,7 +178,14 @@ Requirements:
 # -----------------------------
 # ollama 调用
 # -----------------------------
-def ollama_generate(prompt: str, model: str = "llama3.1", base="http://localhost:11434", system: str = ""):
+def ollama_generate(
+    prompt: str,
+    model: Optional[str] = None,
+    base: Optional[str] = None,
+    system: str = "",
+):
+    model = model or OLLAMA_LLM_MODEL
+    base = (base or OLLAMA_URL).rstrip("/")
     resp = requests.post(
         f"{base}/api/generate",
         json={
@@ -243,7 +256,7 @@ def _call_gemini(query: str, city: Optional[str] = None) -> str:
 # -----------------------------
 # Qdrant client
 # -----------------------------
-qdrant = QdrantClient(url=QDRANT_URL)
+qdrant = QdrantClient(url=QDRANT_URL, check_compatibility=False)
 
 # -----------------------------
 # Schemas
@@ -277,6 +290,10 @@ class SearchOut(BaseModel):
     search_ms: float
     dim: int
     hits: List[Hit]
+    note: Optional[str] = Field(
+        None,
+        description="Set when search completed without vector hits (e.g. collection missing).",
+    )
 
 # --- Pydantic schema ---
 class AnswerIn(BaseModel):
@@ -284,7 +301,7 @@ class AnswerIn(BaseModel):
     topk: int = 8
     city: Optional[str] = None
     ef: int = 128
-    model: str = "llama3.1"          # Ollama 模型名
+    model: str = OLLAMA_LLM_MODEL    # Ollama 模型名，与 AGENT_LLM_MODEL / ollama list 一致
     ctx_chars: int = 2500
     use_mmr: bool = True
 
@@ -325,28 +342,40 @@ def search_api(body: SearchIn):
         must.append(qm.FieldCondition(key="city", match=qm.MatchValue(value=body.city)))
     flt = qm.Filter(must=must) if must else None
 
-    res = qdrant.search(
-        collection_name=COLLECTION,
-        query_vector=qvec,
-        limit=body.topk,
-        query_filter=flt,
-        with_vectors=False,
-        with_payload=True,
-        search_params=qm.SearchParams(hnsw_ef=body.ef),
-    )
-    t2 = time.time()
-
+    t2 = t1
     hits: List[Hit] = []
-    for p in res:
-        pl = p.payload or {}
-        hits.append(Hit(
-            score=float(p.score),
-            title=pl.get("title") or pl.get("source_title"),
-            city=pl.get("city"),
-            chunk_index=pl.get("chunk_index"),
-            snippet=(pl.get("snippet") or "")[:240],
-            id=str(p.id),
-        ))
+    note: Optional[str] = None
+    try:
+        res = qdrant.search(
+            collection_name=COLLECTION,
+            query_vector=qvec,
+            limit=body.topk,
+            query_filter=flt,
+            with_vectors=False,
+            with_payload=True,
+            search_params=qm.SearchParams(hnsw_ef=body.ef),
+        )
+        t2 = time.time()
+        for p in res:
+            pl = p.payload or {}
+            hits.append(Hit(
+                score=float(p.score),
+                title=pl.get("title") or pl.get("source_title"),
+                city=pl.get("city"),
+                chunk_index=pl.get("chunk_index"),
+                snippet=(pl.get("snippet") or "")[:240],
+                id=str(p.id),
+            ))
+    except UnexpectedResponse as e:
+        t2 = time.time()
+        if e.status_code == 404:
+            raw = (e.content or b"").decode("utf-8", errors="replace")[:500]
+            note = (
+                f"Qdrant has no collection `{COLLECTION}` (404). "
+                f"Create/index it before RAG search works. Raw: {raw}"
+            )
+        else:
+            raise
 
     return SearchOut(
         took_ms=(t2 - t0) * 1000.0,
@@ -354,6 +383,7 @@ def search_api(body: SearchIn):
         search_ms=(t2 - t1) * 1000.0,
         dim=len(qvec),
         hits=hits,
+        note=note,
     )
 
 
@@ -384,6 +414,7 @@ def search_claude_api(body: SearchIn) -> SearchOut:
         search_ms=took_ms,
         dim=0,
         hits=[hit],
+        note=None,
     )
 
 
@@ -414,6 +445,7 @@ def search_gemini_api(body: SearchIn) -> SearchOut:
         search_ms=took_ms,
         dim=0,
         hits=[hit],
+        note=None,
     )
 
 
@@ -425,15 +457,23 @@ def answer_api(body: AnswerIn):
     t1 = time.time()
     must = [qm.FieldCondition(key="city", match=qm.MatchValue(value=body.city))] if body.city else []
     flt = qm.Filter(must=must) if must else None
-    res = qdrant.search(
-        collection_name=COLLECTION,
-        query_vector=qvec,
-        limit=body.topk,
-        query_filter=flt,
-        with_vectors=False,
-        with_payload=True,
-        search_params=qm.SearchParams(hnsw_ef=body.ef),
-    )
+    try:
+        res = qdrant.search(
+            collection_name=COLLECTION,
+            query_vector=qvec,
+            limit=body.topk,
+            query_filter=flt,
+            with_vectors=False,
+            with_payload=True,
+            search_params=qm.SearchParams(hnsw_ef=body.ef),
+        )
+    except UnexpectedResponse as e:
+        if e.status_code == 404:
+            raise HTTPException(
+                status_code=503,
+                detail=f"Qdrant collection `{COLLECTION}` not found; index data before using /answer.",
+            ) from e
+        raise
     # 转为 dict 以便后续处理
     hits = [{"score": float(p.score), "payload": p.payload, "id": str(p.id)} for p in res]
     t2 = time.time()

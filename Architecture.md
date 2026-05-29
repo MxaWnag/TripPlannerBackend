@@ -12,6 +12,7 @@ This document describes the overall architecture of the TripPlannerBackend proje
     - `/search_claude`, `/search_gemini` (single-shot external LLM search)
     - `/agent/plan`, `/agent/plan_claude` (single-turn Agent planning)
     - `/agent/chat`, `/agent/chat_claude` (multi-turn, session-based Agents)
+    - `/agent/chat/stream`, `/agent/chat_claude/stream` (NDJSON: token `text_delta` + `step` + `complete`)
   - Hosts the main `FastAPI` app and includes the Agent router (`agent.router`).
 
 - **Agent Package (`agent/`)**
@@ -29,9 +30,9 @@ This document describes the overall architecture of the TripPlannerBackend proje
   - `session.py`: in-memory session store for multi-turn chat
     - Keeps a short message history per `session_id`
     - Used by `/agent/chat` and `/agent/chat_claude` to maintain conversational context.
-  - `router.py`: FastAPI `APIRouter` exposing:
-    - `/agent/plan`, `/agent/plan_claude`
-    - `/agent/chat`, `/agent/chat_claude`
+- **Agent streaming (OCP extension)**  
+  - `POST /agent/chat/stream` (and `.../chat_claude/stream`) emit NDJSON including **`text_delta`** chunks from `llm.stream()` when `stream_tokens=True` (used by the stream routes only).  
+  - Blocking `POST /agent/chat` and `/plan` unchanged: still `invoke()` with no token events.
 
 - **RAG / Vector Store**
   - **Qdrant** (Docker service `qdrant`):

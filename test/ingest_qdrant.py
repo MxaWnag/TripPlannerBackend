@@ -23,7 +23,7 @@ def chunk_text(text, n=1800, overlap=200):
         s = s[n-overlap:]
     return out
 
-client = QdrantClient(url=QDRANT_URL)
+client = QdrantClient(url=QDRANT_URL, check_compatibility=False)
 embed = BGEM3FlagModel("BAAI/bge-m3", use_fp16=False)  # 1024维
 today = datetime.date.today().isoformat()
 
@@ -46,8 +46,12 @@ for city in ["brisbane","gold_coast"]:
         if pts:
             client.upsert(COL, pts)
             print(f"[upsert] {city}:{os.path.basename(fp)} -> {len(pts)}")
-# 查询稳定性参数
-client.set_collection_params(COL, params=qm.CollectionParamsDiff(
-    hnsw_config=qm.HnswConfigDiff(ef=128)
-))
+# 可选：调 HNSW 建图参数（与 /search 里 query ef 不同）
+try:
+    client.update_collection(
+        COL,
+        hnsw_config=qm.HnswConfigDiff(ef_construct=128),
+    )
+except Exception as e:
+    print(f"[warn] update_collection skipped: {e}")
 print("done")

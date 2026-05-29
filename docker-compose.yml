@@ -11,8 +11,9 @@ services:
       TZ: ${TZ}
     volumes:
       - pg_data:/var/lib/postgresql/data
+    # Host 5432 常被本机 PostgreSQL 占用；映射到 5433 避免冲突；容器内 web 仍用 db:5432
     ports:
-      - "5432:5432"
+      - "5433:5432"
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}" ]
       interval: 5s
@@ -40,26 +41,6 @@ services:
     ports:
       - "8000:8000"
 
-  ollama:
-    image: ollama/ollama:latest
-    container_name: ollama
-    restart: unless-stopped
-    environment:
-      - OLLAMA_KEEP_ALIVE=5m
-      - TZ=${TZ}
-    ports:
-      - "11434:11434"
-    volumes:
-      - ollama:/root/.ollama
-
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [ gpu ]
-
   qdrant:
     image: qdrant/qdrant:latest
     restart: unless-stopped
@@ -76,5 +57,4 @@ services:
 
 volumes:
   pg_data:
-  ollama:
   qdrant_data:

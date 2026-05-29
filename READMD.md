@@ -1,14 +1,20 @@
 how to run : docker compose build -> docker compose up -d
 
-# 一键启停（Docker + FastAPI）
-./start.sh   # 启动 Docker (qdrant, ollama, db, web) 与 FastAPI (:8001)，FastAPI PID 写入 .uvicorn.pid
-./stop.sh    # 关闭 FastAPI 并 docker compose down 
+# 一键启停（本机 Ollama + Docker + FastAPI）
+./start.sh   # 本机 Ollama (:11434) + Docker (qdrant, db, web) + FastAPI (:8001)
+./stop.sh    # 关闭 FastAPI 与 docker compose down（不停止你自行管理的本机 Ollama，除非由 start.sh 拉起）
 
-how to pull llama3.1 and run :
+how to pull llama3.1 and run (本机 Ollama) :
 
-pull: docker exec -it ollama ollama pull llama3.1
+pull (agent 默认 DeepSeek-R1-Distill-Qwen-14B Q4):
 
-run： docker exec -it ollama ollama run llama3.1:8b-instruct-q4_K_M "说一句中文你好"
+```bash
+ollama pull deepseek-r1:14b-qwen-distill-q4_K_M
+```
+
+`.env` 中 `AGENT_LLM_MODEL` 须与 `ollama list` 的 NAME 一致。
+
+run： `ollama run deepseek-r1:14b-qwen-distill-q4_K_M "Plan 2 days in Sydney"`
 
 导入 qdrant方法：
 
@@ -81,11 +87,18 @@ curl -s -X POST http://localhost:8001/agent/chat \
   -H 'Content-Type: application/json' \
   -d '{"message":"第一天下午有什么推荐景点？","session_id":"<上一步返回的 session_id>"}'
 
-# CMD 客户端（支持 session、格式化展示 agent 输出）
-python cmd_chat.py                    # Ollama 多轮对话
+# 流式多轮（NDJSON）：meta / run_start / status / text_delta（LLM 逐块）/ step / complete / error
+# curl -N -X POST http://localhost:8001/agent/chat/stream -H 'Content-Type: application/json' -d '{"message":"…"}'
+# Claude: POST http://localhost:8001/agent/chat_claude/stream
+
+# CMD 客户端（Rich + prompt_toolkit，交互样式对齐 Pywen：Banner、状态栏、Panel、/slash）
+# 默认连接 /agent/chat/stream：实时 status + 每步 assistant/tool；加 --show-steps 显示完整 Panel；--no-stream 改回一次性 JSON。
+# 依赖：requirements.txt 中的 rich、prompt-toolkit；安装后运行。
+python cmd_chat.py                    # Ollama 多轮对话（流式过程）
 python cmd_chat.py --claude           # Claude 多轮对话
-python cmd_chat.py --claude --show-steps   # 默认显示每轮 steps
-# 输入 /quit 或 /exit 退出，/steps 切换是否显示步骤
+python cmd_chat.py --claude --show-steps   # 流式时每步用 Rich Panel 展示细节
+# /help 查看命令；/quit 或 exit、quit、q 退出；/steps 切换步骤面板；/stream 开关流式；/base-url <url> 切换 API；/clear 清屏
+# Ctrl+C 一次取消当前输入提示，连按两次或 /quit 退出
 
 # Agent 内 Translink 融合（本地 data/SEQ_GTFS）
 # Claude/Ollama Agent 多两个工具：translink_search_stops(query)、translink_get_departures(stop_id, after_time)
